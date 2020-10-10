@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Fri Oct  9 16:53:32 2020
@@ -47,11 +46,11 @@ while run:
 
             # movement of player  on pressing left arrow key
             if event.key == pygame.K_LEFT:
-                playerx_change = -0.1
+                playerx_change = -0.3
 
             # movement of player  on pressing right arrow key
             if event.key == pygame.K_RIGHT:
-                playerx_change = 0.1
+                playerx_change = 0.3
 
         # checking wheather the key is RELEASED
         if event.type == pygame.KEYUP:
@@ -59,16 +58,22 @@ while run:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerx_change = 0
 
+    # fill color to the surface of window
+    screen.fill((60, 60, 110))  # CHANGING THE COLOR OF WINDOW
 
-
-
-
-    # fill the surface of window
-    screen.fill((23, 33, 100))  # CHANGING THE COLOR OF WINDOW
-
-    # calling playerimage function
+    # for the movement of player space ship ; changing the x co-ordinates
     playerx += playerx_change
-    playerImg(playerx, playery)
+
+    # setting boundaries:
+    # when spaceship will touch the left boundary is will stop
+    if playerx <= 0:
+        playerx = 0
+
+    # when spaceship will touch the right boundary is will stop
+    if playerx >= 740:
+        playerx = 740
+
+    playerImg(playerx, playery)  # calling playerimage function
 
     # updating the changes in the window
     # Draws the surface object to the screen.
