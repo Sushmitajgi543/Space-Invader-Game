@@ -8,6 +8,7 @@ Created on Fri Oct  9 16:53:32 2020
 import pygame
 import random
 import math
+from pygame import mixer
 
 # initializing all pygame modules
 pygame.init()
@@ -22,11 +23,20 @@ pygame.display.set_icon(logo)
 # Changing the tittle of the window
 pygame.display.set_caption("SPACE INVADER @BY SUSHMITA SINGH")
 
-# score diplay
+
+#background sound
+mixer.music.load("sound/background.wav")
+mixer.music.play(-1)
 # implenting font style
+# score diplay
 font = pygame.font.Font("freesansbold.ttf", 20)
 textx = 10
 texty = 10
+
+# game over display
+font_over = pygame.font.Font("freesansbold.ttf", 80)
+overx = 200
+overy = 260
 
 # SPACESHIP for player
 player = pygame.image.load("image/spaceship.png")
@@ -36,20 +46,20 @@ playerx_change = 0
 playery_change = 0
 
 # ENEMY of game
-#empty list for append 6 enemy
+# empty list for append 6 enemy
 enemy = []
 enemyx = []
 enemyy = []
 enemyx_change = []
 enemyy_change = []
-enemyno =6
-#appending enemy
+enemyno = 10
+# appending enemy
 for en in range(enemyno):
     enemy.append(pygame.image.load('image/enemy.png'))
-    enemyx.append( random.randint(0, 740))
-    enemyy.append( random.randint(15, 120))
-    enemyx_change.append( 0.3)
-    enemyy_change.append(40)
+    enemyx.append(random.randint(0, 740))
+    enemyy.append(random.randint(0, 190))
+    enemyx_change.append(0.6)
+    enemyy_change.append(30)
 
 
     # function for enemy image
@@ -61,7 +71,7 @@ bullet = pygame.image.load('image/bullet.png')
 bulletx = 0
 bullety = 600
 bullex_change = 0
-bullety_change = 1  # it will decide the speed on bullet
+bullety_change =3  # it will decide the speed on bullet
 bullet_state = "ready"
 
 
@@ -82,8 +92,8 @@ def bulletFire(x, y):
     screen.blit(bullet, (x + 5, y - 17))  # changing x and y value to fire bullet from top and bottom of spaceship
 
 
-# function to etect collision of bullet and enemy
-def collision(enemyx, enemyy, bulletx, bullety):
+# function to detect collision of bullet and enemy
+def collision_eb(enemyx, enemyy, bulletx, bullety):
     # measuring distance bet two co-ordinates
     distance = math.sqrt((math.pow(enemyx - bulletx, 2)) + (math.pow(enemyy - bullety, 2)))
     if distance < 27:
@@ -92,10 +102,16 @@ def collision(enemyx, enemyy, bulletx, bullety):
         return False
 
 
-# function to display text
-def show(x, y):
+# function to display score text
+def show_score(x, y):
     text_score = font.render("score:" + str(score), True, (0, 0, 0))  # message to display
-    screen.blit(text_score,(x, y))
+    screen.blit(text_score, (x, y))
+
+
+# function to display game over text
+def show_over(x, y):
+    text_over = font_over.render("GAME OVER", True, (200, 0, 44))  # message to display
+    screen.blit(text_over, (x, y))
 
 
 run = True
@@ -133,7 +149,6 @@ while run:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerx_change = 0
 
-
     # for the movement of player space ship ; changing the x co-ordinates
     playerx += playerx_change
 
@@ -146,10 +161,15 @@ while run:
     if playerx >= 740:
         playerx = 740
 
-    playerImg(playerx, playery)  # calling playerimage function
-
-
+    # enemy movemt
     for en in range(enemyno):
+        # checking enemy collision with spaceship
+        if enemyy[en] > 500:
+            for j in range(enemyno):
+                enemyy[j] = 2000
+            show_over(overx, overy)
+            break
+
         # for the movement of enemy ; changing the x co-ordinates
         enemyx[en] += enemyx_change[en]
 
@@ -164,10 +184,10 @@ while run:
             enemyy[en] += enemyy_change[en]
             enemyx_change[en] = -0.3  # when enemy touches right boundary move back to left direction
 
-        # Calling collision function
-        coll = collision(enemyx[en], enemyy[en], bulletx, bullety)
-        if coll:
-            bullety = 480
+        # Calling enemy and bullet collision function
+        coll_eb = collision_eb(enemyx[en], enemyy[en], bulletx, bullety)
+        if coll_eb:
+            bullety = 600
             bullet_state = "ready"
             score += 10  # score will inrease by 10 when bullet hits enemy
             # new enemy will appear after collision
@@ -180,14 +200,15 @@ while run:
         bullety = 600
         bullet_state = "ready"
 
-
     # Bullet movement
     if bullet_state == "fire":
         bulletFire(bulletx, bullety)
         bullety -= bullety_change
 
+    playerImg(playerx, playery)  # calling playerimage function
+
     # callinf score show function
-    show(textx, texty)
+    show_score(textx, texty)
 
     # updating the changes in the window
     # Draws the surface object to the screen.
