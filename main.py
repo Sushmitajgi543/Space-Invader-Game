@@ -36,11 +36,25 @@ playerx_change = 0
 playery_change = 0
 
 # ENEMY of game
-enemy = pygame.image.load('image/enemy.png')
-enemyx = random.randint(0, 740)
-enemyy = random.randint(15, 120)
-enemyx_change = 0.3
-enemyy_change = 40
+#empty list for append 6 enemy
+enemy = []
+enemyx = []
+enemyy = []
+enemyx_change = []
+enemyy_change = []
+enemyno =6
+#appending enemy
+for en in range(enemyno):
+    enemy.append(pygame.image.load('image/enemy.png'))
+    enemyx.append( random.randint(0, 740))
+    enemyy.append( random.randint(15, 120))
+    enemyx_change.append( 0.3)
+    enemyy_change.append(40)
+
+
+    # function for enemy image
+    def enemyImg(x, y):
+        screen.blit(enemy[en], (x, y))
 
 # Bullet for firing
 bullet = pygame.image.load('image/bullet.png')
@@ -58,11 +72,6 @@ bullet_state = "ready"
 # function for player image
 def playerImg(x, y):
     screen.blit(player, (x, y))
-
-
-# function for enemy image
-def enemyImg(x, y):
-    screen.blit(enemy, (x, y))
 
 
 # function fore bullet image
@@ -139,36 +148,38 @@ while run:
 
     playerImg(playerx, playery)  # calling playerimage function
 
-    # for the movement of enemy ; changing the x co-ordinates
-    enemyx += enemyx_change
 
-    # enemy boundary collision
-    if enemyx <= 0:
-        enemyx = 0
-        enemyx_change = 0.3  # when enemy touches left boundary move back to right direction
-        enemyy += enemyy_change
+    for en in range(enemyno):
+        # for the movement of enemy ; changing the x co-ordinates
+        enemyx[en] += enemyx_change[en]
 
-    if enemyx >= 740:
-        enemyx = 740
-        enemyy += enemyy_change
-        enemyx_change = -0.3  # when enemy touches right boundary move back to left direction
+        # enemy boundary collision
+        if enemyx[en] <= 0:
+            enemyx[en] = 0
+            enemyx_change[en] = 0.3  # when enemy touches left boundary move back to right direction
+            enemyy[en] += enemyy_change[en]
 
-    enemyImg(enemyx, enemyy)  # calling enemyimage function
+        if enemyx[en] >= 740:
+            enemyx[en] = 740
+            enemyy[en] += enemyy_change[en]
+            enemyx_change[en] = -0.3  # when enemy touches right boundary move back to left direction
+
+        # Calling collision function
+        coll = collision(enemyx[en], enemyy[en], bulletx, bullety)
+        if coll:
+            bullety = 480
+            bullet_state = "ready"
+            score += 10  # score will inrease by 10 when bullet hits enemy
+            # new enemy will appear after collision
+            enemyx[en] = random.randint(0, 740)
+            enemyy[en] = random.randint(15, 120)
+        enemyImg(enemyx[en], enemyy[en])  # calling enemyimage function
 
     # multiple bullet but when one bullet go beyond the boundary
     if bullety <= 0:
         bullety = 600
         bullet_state = "ready"
 
-    # Calling collision function
-    coll = collision(enemyx, enemyy, bulletx, bullety)
-    if coll:
-        bullety = 480
-        bullet_state = "ready"
-        score += 10  # score will inrease by 10 when bullet hits enemy
-        # new enemy will appear after collision
-        enemyx = random.randint(0, 740)
-        enemyy = random.randint(15, 120)
 
     # Bullet movement
     if bullet_state == "fire":
