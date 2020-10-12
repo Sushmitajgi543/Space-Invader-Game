@@ -7,10 +7,11 @@ Created on Fri Oct  9 16:53:32 2020
 """
 import pygame
 import random
+import math
 
 # initializing all pygame modules
 pygame.init()
-
+score = 0
 # creating window
 screen = pygame.display.set_mode((800, 700))
 
@@ -20,6 +21,12 @@ pygame.display.set_icon(logo)
 
 # Changing the tittle of the window
 pygame.display.set_caption("SPACE INVADER @BY SUSHMITA SINGH")
+
+# score diplay
+# implenting font style
+font = pygame.font.Font("freesansbold.ttf", 20)
+textx = 10
+texty = 10
 
 # SPACESHIP for player
 player = pygame.image.load("image/spaceship.png")
@@ -40,7 +47,7 @@ bullet = pygame.image.load('image/bullet.png')
 bulletx = 0
 bullety = 600
 bullex_change = 0
-bullety_change = 1 #it will decide the speed on bullet
+bullety_change = 1  # it will decide the speed on bullet
 bullet_state = "ready"
 
 
@@ -66,9 +73,29 @@ def bulletFire(x, y):
     screen.blit(bullet, (x + 5, y - 17))  # changing x and y value to fire bullet from top and bottom of spaceship
 
 
+# function to etect collision of bullet and enemy
+def collision(enemyx, enemyy, bulletx, bullety):
+    # measuring distance bet two co-ordinates
+    distance = math.sqrt((math.pow(enemyx - bulletx, 2)) + (math.pow(enemyy - bullety, 2)))
+    if distance < 27:
+        return True
+    else:
+        return False
+
+
+# function to display text
+def show(x, y):
+    text_score = font.render("score:" + str(score), True, (0, 0, 0))  # message to display
+    screen.blit(text_score,(x, y))
+
+
 run = True
 # game loop
 while run:
+
+    # fill color to the surface of window
+    screen.fill((60, 60, 110))  # CHANGING THE COLOR OF WINDOW
+
     for event in pygame.event.get():  # it will call all events of pyagme
         # quit the program.
         if event.type == pygame.QUIT:  # IT WIL ENABLLE CLOSE BUTTON TO CLOSE THE WINDOW
@@ -97,9 +124,6 @@ while run:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerx_change = 0
 
-
-    # fill color to the surface of window
-    screen.fill((60, 60, 110))  # CHANGING THE COLOR OF WINDOW
 
     # for the movement of player space ship ; changing the x co-ordinates
     playerx += playerx_change
@@ -131,16 +155,28 @@ while run:
 
     enemyImg(enemyx, enemyy)  # calling enemyimage function
 
+    # multiple bullet but when one bullet go beyond the boundary
+    if bullety <= 0:
+        bullety = 600
+        bullet_state = "ready"
 
-    #multiple bullet but when one bullet go beyond the boundary
-    if bullety<=0:
-        bullety =600
-        bullet_state="ready"
+    # Calling collision function
+    coll = collision(enemyx, enemyy, bulletx, bullety)
+    if coll:
+        bullety = 480
+        bullet_state = "ready"
+        score += 10  # score will inrease by 10 when bullet hits enemy
+        # new enemy will appear after collision
+        enemyx = random.randint(0, 740)
+        enemyy = random.randint(15, 120)
 
     # Bullet movement
     if bullet_state == "fire":
         bulletFire(bulletx, bullety)
         bullety -= bullety_change
+
+    # callinf score show function
+    show(textx, texty)
 
     # updating the changes in the window
     # Draws the surface object to the screen.
